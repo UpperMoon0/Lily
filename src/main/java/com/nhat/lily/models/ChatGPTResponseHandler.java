@@ -55,7 +55,7 @@ public class ChatGPTResponseHandler implements Serializable {
             saveHistoryToFile();
 
             // Tokenize the prompt
-            String[] tokens = prompt.split(" "); // Replace with a more sophisticated tokenizer if necessary
+            String[] tokens = prompt.split(" ");
 
             // Check the command using CommandHandler
             String command = commandHandler.checkCommand(prompt, tokens);

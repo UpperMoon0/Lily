@@ -17,7 +17,7 @@ public class AzureTranslatorHandler {
     private static final String API_KEY = System.getenv("AzureTranslatorKey");
     private static final String REGION = System.getenv("AzureRegion");
     private static AzureTranslatorHandler instance = null;
-    private TextTranslationClient client;
+    private final TextTranslationClient client;
 
     private AzureTranslatorHandler() {
         AzureKeyCredential credential = new AzureKeyCredential(API_KEY);
