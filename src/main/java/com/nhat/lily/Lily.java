@@ -19,14 +19,6 @@ public class Lily extends Application {
         MainController controller = fxmlLoader.getController();
         controller.setStage(stage);
 
-        stage.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
-            if (!isNowFocused) {
-                stage.setAlwaysOnTop(true);
-            } else {
-                stage.setAlwaysOnTop(false);
-            }
-        });
-
         stage.show();
     }
 

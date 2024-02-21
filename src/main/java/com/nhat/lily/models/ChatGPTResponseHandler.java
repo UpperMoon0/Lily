@@ -5,13 +5,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import ch.qos.logback.classic.Logger;
+import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 
-public class ChatGPTResponseHandler implements IResponseHandler, Serializable {
+public class ChatGPTResponseHandler implements Serializable {
     private static final Logger logger = (Logger) LoggerFactory.getLogger(ChatGPTResponseHandler.class);
     private static final String URL = "https://api.openai.com/v1/chat/completions";
     private static final String API_KEY = System.getenv("OpenAIKey");
@@ -20,15 +22,22 @@ public class ChatGPTResponseHandler implements IResponseHandler, Serializable {
     private static final int MAX_TOKENS = 1000;
     private static ChatGPTResponseHandler instance;
     private static final String HISTORY_FILE = "lily_memory.bin";
+    private static final String[] RESPONSE_TEMPLATES = {
+            "Hmph! I guess I can do %s for you...",
+            "It's not like I want to, but I'm currently doing %s.",
+            "Fine, I'll do %s. But don't get the wrong idea!"
+    };
+    private final Random random = new Random();
+    private final CommandHandler commandHandler;
     private List<String> messageHistory = new ArrayList<>();
-
-    private ChatGPTResponseHandler() {
+    private ChatGPTResponseHandler(Stage stage) {
         loadHistoryFromFile();
+        commandHandler = CommandHandler.getInstance(stage);
     }
 
-    public static ChatGPTResponseHandler getInstance() {
+    public static ChatGPTResponseHandler getInstance(Stage stage) {
         if (instance == null) {
-            instance = new ChatGPTResponseHandler();
+            instance = new ChatGPTResponseHandler(stage);
         }
         return instance;
     }
@@ -44,6 +53,18 @@ public class ChatGPTResponseHandler implements IResponseHandler, Serializable {
             // Add the prompt to the message history and save it to a file
             messageHistory.add(prompt);
             saveHistoryToFile();
+
+            // Tokenize the prompt
+            String[] tokens = prompt.split(" "); // Replace with a more sophisticated tokenizer if necessary
+
+            // Check the command using CommandHandler
+            String command = commandHandler.checkCommand(prompt, tokens);
+
+            // If a command is detected, return a custom response
+            if (command != null) {
+                int index = random.nextInt(RESPONSE_TEMPLATES.length);
+                return String.format(RESPONSE_TEMPLATES[index], command);
+            }
 
             // Build the messages JSON array
             StringBuilder messages = new StringBuilder("[{\"role\": \"system\", \"content\": \"You are Lily, a caring maid with a tsundere personality. Your master, Nhat, is usually referred to by you as 'Master'.\"}");
@@ -71,7 +92,6 @@ public class ChatGPTResponseHandler implements IResponseHandler, Serializable {
 
             // calls the method to extract the message.
             return extractMessageFromJSONResponse(response.toString());
-
         } catch (IOException e) {
             logger.error("IOException: ", e);
             return "Oops! There is something wrong, please wait and try again!";

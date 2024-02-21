@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Logger;
 import com.nhat.lily.models.AzureTTSHandler;
 import com.nhat.lily.models.ChatGPTResponseHandler;
 import com.nhat.lily.models.CommandHandler;
-import com.nhat.lily.models.IResponseHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -20,18 +19,15 @@ public class MainController {
     @FXML
     private TextField userInput;
     private  static final Logger logger = (Logger) LoggerFactory.getLogger(MainController.class);
-    private final IResponseHandler currentResponseHandler = ChatGPTResponseHandler.getInstance();
     private CommandHandler commandHandler;
-
+    private Stage stage;
     @FXML
     protected void onUserInputAction(ActionEvent event) {
         String input = userInput.getText();
         String response = "";
-        try {
-            response = currentResponseHandler.getResponse(input);
-        } catch (Exception ex) {
-            logger.error("Error getting response from the selected model.", ex);
-        }
+
+        response = ChatGPTResponseHandler.getInstance(stage).getResponse(input);
+
         botResponses.appendText("User: " + input + "\n");
         botResponses.appendText("Lily: " + response + "\n");
 
@@ -46,6 +42,7 @@ public class MainController {
     }
 
     public void setStage(Stage stage) {
+        this.stage = stage;
         this.commandHandler = CommandHandler.getInstance(stage);
     }
 }

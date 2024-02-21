@@ -1,13 +1,14 @@
 package com.nhat.lily.models;
 
 import ch.qos.logback.classic.Logger;
-import javafx.application.Platform;
+import javafx.animation.PauseTransition;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Desktop;
+import java.awt.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,13 +40,10 @@ public class CommandHandler {
             TokenizerME tokenizer = new TokenizerME(tokenModel);
             String[] tokens = tokenizer.tokenize(input);
 
-            if (isRepeatCommand(input)) {
-                if (lastCommand != null) {
-                    repeatCommand(lastCommand);
-                }
-            } else if (Arrays.asList(tokens).contains("browser")) {
-                openBrowser();
-                lastCommand = "browser";
+            String command = checkCommand(input, tokens);
+            if (command != null) {
+                executeCommand(command);
+                lastCommand = command;
             }
 
         } catch (Exception e) {
@@ -53,6 +51,28 @@ public class CommandHandler {
         }
     }
 
+    public String checkCommand(String input, String[] tokens) {
+        if (isRepeatCommand(input)) {
+            if (lastCommand != null) {
+                return lastCommand;
+            }
+        } else if (input.contains("search for ")) {
+            int index = input.indexOf("search for ") + "search for ".length();
+            String query = input.substring(index);
+            return "search for " + query;
+        } else if (Arrays.asList(tokens).contains("browser")) {
+            return "open browser";
+        }
+        return null;
+    }
+
+    private void executeCommand(String command) {
+        if ("open browser".equals(command)) {
+            openBrowser();
+        } else if (command.startsWith("search for ")) {
+            openBrowser();
+        }
+    }
     private boolean isRepeatCommand(String input) {
         try (InputStream tokenModelIn = new FileInputStream(MODEL_LOCATION + "en-token.bin")) {
             TokenizerModel tokenModel = new TokenizerModel(tokenModelIn);
@@ -71,20 +91,22 @@ public class CommandHandler {
         return false;
     }
 
-    private void repeatCommand(String command) {
-        if ("browser".equals(command)) {
-            openBrowser();
-        }
-    }
+    public void openBrowser() {
+        try {
+            // Create a URI object with the URL you want to open
+            URI uri = new URI("http://www.google.com");
 
-    private void openBrowser() {
-        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-            try {
-                Desktop.getDesktop().browse(new URI("http://www.google.com"));
-                Platform.runLater(() -> stage.toFront());
-            } catch (Exception e) {
-                logger.error("Exception: ", e);
+            // Get the default desktop and browse the URI
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(uri);
+                stage.setAlwaysOnTop(true);
+
+                PauseTransition pause = new PauseTransition(Duration.seconds(1));
+                pause.setOnFinished(event -> stage.setAlwaysOnTop(false));
+                pause.play();
             }
+        } catch (Exception e) {
+            logger.error("Exception: ", e);
         }
     }
 }
