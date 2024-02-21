@@ -5,6 +5,8 @@ module com.example.aelia {
     requires client.sdk;
     requires com.azure.ai.translation.text;
     requires ch.qos.logback.classic;
+    requires org.apache.opennlp.tools;
+    requires java.desktop;
 
 
     opens com.nhat.lily to javafx.fxml;

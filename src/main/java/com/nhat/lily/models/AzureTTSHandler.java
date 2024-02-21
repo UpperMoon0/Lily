@@ -12,10 +12,8 @@ public class AzureTTSHandler {
     private static final String speechSubscriptionKey = System.getenv("AzureTTSKey");
     private static final String serviceRegion = "southeastasia";
     private static AzureTTSHandler instance = null;
-
     private AzureTTSHandler() {
     }
-
     public static AzureTTSHandler getInstance() {
         if (instance == null) {
             instance = new AzureTTSHandler();
