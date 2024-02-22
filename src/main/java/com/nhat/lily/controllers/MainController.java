@@ -4,6 +4,8 @@ import ch.qos.logback.classic.Logger;
 import com.nhat.lily.models.AzureTTSHandler;
 import com.nhat.lily.models.ChatGPTResponseHandler;
 import com.nhat.lily.models.CommandHandler;
+import com.nhat.lily.views.AudioLineVisualizer;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
@@ -19,6 +21,8 @@ public class MainController {
     @FXML
     public Circle imageClip;
     @FXML
+    public AudioLineVisualizer audioCircleVisualizer;
+    @FXML
     private VBox vbox;
     @FXML
     public ImageView imageView;
@@ -26,7 +30,7 @@ public class MainController {
     private TextArea botResponses;
     @FXML
     private TextField userInput;
-    private  static final Logger logger = (Logger) LoggerFactory.getLogger(MainController.class);
+    private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(MainController.class);
     private CommandHandler commandHandler;
     private Stage stage;
     public void initialize() {
@@ -44,23 +48,27 @@ public class MainController {
         clipCircle.radiusProperty().bind(imageView.fitWidthProperty().divide(2));
         clipCircle.centerXProperty().bind(imageView.fitWidthProperty().divide(2));
         clipCircle.centerYProperty().bind(imageView.fitHeightProperty().divide(2));
+
+        audioCircleVisualizer.prefWidthProperty().bind(imageView.fitWidthProperty());
+        audioCircleVisualizer.prefHeightProperty().bind(imageView.fitHeightProperty());
     }
     @FXML
     protected void onUserInputAction(ActionEvent event) {
         String input = userInput.getText();
-        String response;
 
-        response = ChatGPTResponseHandler.getInstance(stage).getResponse(input);
-
-        botResponses.appendText("User: " + input + "\n");
-        botResponses.appendText("Lily: " + response + "\n");
-
-        String finalResponse = response;
         new Thread(() -> {
-            AzureTTSHandler.getInstance().speak(finalResponse, "ja-JP");
-        }).start();
+            botResponses.appendText("User: " + input + "\n");
 
-        commandHandler.processCommand(input);
+            String response = ChatGPTResponseHandler.getInstance(stage).getResponse(input);
+
+            // Update UI on JavaFX Application Thread
+            Platform.runLater(() -> {
+                botResponses.appendText("Lily: " + response + "\n");
+            });
+
+            AzureTTSHandler.getInstance().speak(response, "ja-JP", audioCircleVisualizer);
+            commandHandler.processCommand(input);
+        }).start();
 
         userInput.clear();
     }

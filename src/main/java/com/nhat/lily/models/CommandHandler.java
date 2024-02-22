@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,12 +19,18 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class CommandHandler {
     private static final Logger logger = (Logger) LoggerFactory.getLogger(CommandHandler.class);
-    private static final String MODEL_LOCATION = "src/main/resources/com/nhat/lily/opennlp/";
+    private static final String NLP_MODEL_LOCATION = "src\\main\\resources\\com\\nhat\\lily\\opennlp\\";
     private static CommandHandler instance = null;
+    public static final HashMap<String, String> COMMAND_NAMES = new HashMap<>() {{
+        put("open browser", "open the browser");
+        put("search for", "search for");
+        put("clear memory", "clear my memory");
+    }};
     private String lastCommand = null;
     private final Stage stage;
 
@@ -39,9 +46,10 @@ public class CommandHandler {
     }
 
     public void processCommand(String input) {
-        try (InputStream tokenModelIn = new FileInputStream(MODEL_LOCATION + "en-token.bin")) {
+        try (InputStream tokenModelIn = new FileInputStream(NLP_MODEL_LOCATION + "en-token.bin")) {
             TokenizerModel tokenModel = new TokenizerModel(tokenModelIn);
             TokenizerME tokenizer = new TokenizerME(tokenModel);
+            input = input.toLowerCase();
             String[] tokens = tokenizer.tokenize(input);
 
             String command = checkCommand(input, tokens);
@@ -56,6 +64,7 @@ public class CommandHandler {
     }
 
     public String checkCommand(String input, String[] tokens) {
+        input = input.toLowerCase();
         if (isRepeatCommand(input)) {
             if (lastCommand != null) {
                 return lastCommand;
@@ -66,21 +75,31 @@ public class CommandHandler {
             return "search for " + query;
         } else if (Arrays.asList(tokens).contains("browser")) {
             return "open browser";
+        } else if (Arrays.asList(tokens).contains("clear") && Arrays.asList(tokens).contains("your") && Arrays.asList(tokens).contains("memory")) {
+            return "clear memory";
         }
         return null;
     }
 
     private void executeCommand(String command) {
-        if ("open browser".equals(command)) {
-            openBrowser("");
-        } else if (command.startsWith("search for ")) {
-            String searchQuery = command.substring("search for ".length());
-            openBrowser(searchQuery);
+        switch (command) {
+            case "open browser":
+                openBrowser("");
+                break;
+            case "clear memory":
+                ChatGPTResponseHandler.getInstance(stage).clearMemory();
+                break;
+            default:
+                if (command.startsWith("search for ")) {
+                    String searchQuery = command.substring("search for ".length());
+                    openBrowser(searchQuery);
+                }
+                break;
         }
     }
 
     private boolean isRepeatCommand(String input) {
-        try (InputStream tokenModelIn = new FileInputStream(MODEL_LOCATION + "en-token.bin")) {
+        try (InputStream tokenModelIn = new FileInputStream(NLP_MODEL_LOCATION + "en-token.bin")) {
             TokenizerModel tokenModel = new TokenizerModel(tokenModelIn);
             TokenizerME tokenizer = new TokenizerME(tokenModel);
             String[] tokens = tokenizer.tokenize(input);
@@ -99,26 +118,24 @@ public class CommandHandler {
 
     public void openBrowser(String searchQuery) {
         try {
-            // Encode the search query so it can be included in a URL
             String encodedSearchQuery = URLEncoder.encode(searchQuery, StandardCharsets.UTF_8);
 
-            // Create a URL for a Google search with the search query
             String url = "https://www.google.com/search?q=" + encodedSearchQuery;
 
-            // Fetch the HTML of the search results page
             Document doc = Jsoup.connect(url).get();
 
-            // Parse the HTML to extract the search results
-            // This is a placeholder - you'll need to replace this with code that
-            // correctly extracts the search results from the HTML
             String searchResults = doc.text();
 
-            // Display the search results
             System.out.println(searchResults);
 
-            // Open the search results page in the browser
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 Desktop.getDesktop().browse(new URI(url));
+
+                stage.setWidth(800);
+                stage.setHeight(600);
+
+                stage.centerOnScreen();
+
                 stage.setAlwaysOnTop(true);
 
                 PauseTransition pause = new PauseTransition(Duration.seconds(1));
