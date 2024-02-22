@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 import ch.qos.logback.classic.Logger;
+import com.nhat.lily.controllers.MainController;
 import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,20 +25,24 @@ public class ChatGPTResponseHandler implements Serializable {
     private static final String[] RESPONSE_TEMPLATES = {
             "Hmph! I guess I can do %s for you...",
             "It's not like I want to, but will %s.",
-            "Fine, I'll do %s. But don't get the wrong idea!"
+            "Fine, I'll do %s. But don't get the wrong idea!",
+            "I'll do %s, but don't expect me to like it!",
+            "I'll do %s, but only because you asked nicely.",
+            "I'll do %s, but only because I want to!",
+            "I'll do %s, but only because I want to help you!"
     };
     private static ChatGPTResponseHandler instance;
     private final Random random = new Random();
     private final CommandHandler commandHandler;
     private List<String> lilyMemory = new ArrayList<>();
-    private ChatGPTResponseHandler(Stage stage) {
+    private ChatGPTResponseHandler(CommandHandler commandHandler) {
+        this.commandHandler = commandHandler;
         loadHistoryFromFile();
-        commandHandler = CommandHandler.getInstance(stage);
     }
 
-    public static ChatGPTResponseHandler getInstance(Stage stage) {
+    public static ChatGPTResponseHandler getInstance(CommandHandler commandHandler) {
         if (instance == null) {
-            instance = new ChatGPTResponseHandler(stage);
+            instance = new ChatGPTResponseHandler(commandHandler);
         }
         return instance;
     }
@@ -55,10 +60,10 @@ public class ChatGPTResponseHandler implements Serializable {
             saveHistoryToFile();
 
             // Tokenize the prompt
-            String[] tokens = prompt.split(" ");
+            String[] tokens = prompt.toLowerCase().split(" ");
 
             // Check the command using CommandHandler
-            String command = commandHandler.checkCommand(prompt, tokens);
+            String command = commandHandler.checkCommand(tokens);
 
             // If a command is detected, return a custom response
             if (command != null) {
@@ -72,7 +77,7 @@ public class ChatGPTResponseHandler implements Serializable {
             }
 
             // Build the messages JSON array
-            StringBuilder messages = new StringBuilder("[{\"role\": \"system\", \"content\": \"You are Lily, a caring maid with a tsundere personality. Your master, Nhat, is usually referred to by you as 'Master'.\"}");
+            StringBuilder messages = new StringBuilder("[{\"role\": \"system\", \"content\": \"You are Lily, a caring maid with a tsundere personality. Your master, Nhat, is usually referred to by you as your master.\"}");
             for (String message : lilyMemory) {
                 messages.append(", {\"role\": \"user\", \"content\": \"").append(message).append("\"}");
             }

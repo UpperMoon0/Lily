@@ -31,7 +31,6 @@ public class MainController {
     @FXML
     private TextField userInput;
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(MainController.class);
-    private CommandHandler commandHandler;
     private Stage stage;
     public void initialize() {
         Scene scene = vbox.getScene();
@@ -57,9 +56,10 @@ public class MainController {
         String input = userInput.getText();
 
         new Thread(() -> {
-            botResponses.appendText("User: " + input + "\n");
+            botResponses.appendText("You: " + input + "\n");
 
-            String response = ChatGPTResponseHandler.getInstance(stage).getResponse(input);
+            CommandHandler commandHandler = CommandHandler.getInstance(this);
+            String response = ChatGPTResponseHandler.getInstance(commandHandler).getResponse(input);
 
             // Update UI on JavaFX Application Thread
             Platform.runLater(() -> {
@@ -75,6 +75,13 @@ public class MainController {
 
     public void setStage(Stage stage) {
         this.stage = stage;
-        this.commandHandler = CommandHandler.getInstance(stage);
+    }
+
+    public TextArea getBotResponses() {
+        return botResponses;
+    }
+
+    public Stage getStage() {
+        return stage;
     }
 }
