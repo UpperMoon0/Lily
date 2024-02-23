@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class AzureTranslatorHandler {
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(AzureTranslatorHandler.class);
+    private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(AzureTranslatorHandler.class);
     private static final String API_KEY = System.getenv("AzureTranslatorKey");
     private static final String REGION = System.getenv("AzureRegion");
     private static AzureTranslatorHandler instance = null;
@@ -46,7 +46,7 @@ public class AzureTranslatorHandler {
             }
         }
         catch (Exception e) {
-            logger.error("Exception: ", e);
+            LOGGER.error("An error occurred while translating text: " + e.getMessage());
         }
         return translatedText.toString();
     }

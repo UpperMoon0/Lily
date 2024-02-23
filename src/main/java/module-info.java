@@ -10,6 +10,8 @@ module com.nhat.lily {
     requires java.net.http;
     requires org.jsoup;
     requires javafx.media;
+    requires com.google.api.client;
+    requires com.google.gson;
 
     opens com.nhat.lily to javafx.fxml;
     exports com.nhat.lily;

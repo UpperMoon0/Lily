@@ -60,7 +60,7 @@ public class ChatGPTResponseHandler implements Serializable {
             saveHistoryToFile();
 
             // Tokenize the prompt
-            String[] tokens = prompt.toLowerCase().split(" ");
+            String[] tokens = commandHandler.preprocess(prompt);
 
             // Check the command using CommandHandler
             String command = commandHandler.checkCommand(tokens);
@@ -69,7 +69,7 @@ public class ChatGPTResponseHandler implements Serializable {
             if (command != null) {
                 int index = random.nextInt(RESPONSE_TEMPLATES.length);
                 String command_name = command;
-                if (!command.startsWith("search for")) {
+                if (!command.startsWith("search")) {
                     command_name = CommandHandler.COMMAND_NAMES.get(command);
                 }
 
@@ -94,7 +94,7 @@ public class ChatGPTResponseHandler implements Serializable {
             // Response from ChatGPT
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
             while ((line = br.readLine()) != null) {
                 response.append(line);
             }
