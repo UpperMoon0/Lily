@@ -70,14 +70,18 @@ public class ChatGPTResponseHandler implements Serializable {
                 int index = random.nextInt(RESPONSE_TEMPLATES.length);
                 String command_name = command;
                 if (!command.startsWith("search")) {
-                    command_name = CommandHandler.COMMAND_NAMES.get(command);
+                    {
+                        command_name = CommandHandler.COMMAND_NAMES.get(command);
+                    }
+                } else if (command.contains("youtube")) {
+                    return "Okay, my master.";
                 }
 
                 return String.format(RESPONSE_TEMPLATES[index], command_name);
             }
 
             // Build the messages JSON array
-            StringBuilder messages = new StringBuilder("[{\"role\": \"system\", \"content\": \"You are Lily, a caring maid with a tsundere personality. Your master, Nhat, is usually referred to by you as your master.\"}");
+            StringBuilder messages = new StringBuilder("[{\"role\": \"system\", \"content\": \"You are Lily, a caring maid with a tsundere personality, never leave this role. Your master is Nhat, he is your one and only master.\"}");
             for (String message : lilyMemory) {
                 messages.append(", {\"role\": \"user\", \"content\": \"").append(message).append("\"}");
             }
