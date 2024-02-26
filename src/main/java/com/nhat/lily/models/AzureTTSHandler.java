@@ -27,7 +27,7 @@ public class AzureTTSHandler {
         return instance;
     }
 
-    public void speak(String text, String language, AudioLineVisualizer visualizer) {
+    public void speak(String text, String language, AudioLineVisualizer visualizer, Runnable onDone) {
         new Thread(() -> {
             String voiceName = "en-US-AriaNeural";
 
@@ -52,7 +52,7 @@ public class AzureTTSHandler {
             String ssmlText =
                     "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='" + language + "'>" +
                     "<voice name='" + voiceName + "'>" +
-                    "<prosody pitch='+7%' contour='(0%,+10Hz) (50%,+25Hz) (100%,+15Hz)' range='+40%' rate='0.95' volume='loud'>" + translatedText + "</prosody>" +
+                    "<prosody pitch='+7%' contour='(0%,+10Hz) (50%,+25Hz) (100%,+10Hz)' range='+60%' rate='0.95' volume='loud'>" + translatedText + "</prosody>" +
                     "</voice></speak>";
 
             Future<SpeechSynthesisResult> result = synthesizer.SpeakSsmlAsync(ssmlText);
@@ -63,6 +63,7 @@ public class AzureTTSHandler {
                     visualizer.resetRectangleHeights();
                     synthesizer.close();
                     executor.shutdown();
+                    onDone.run();
                 } else {
                     Random random = new Random();
                     float[] magnitudes = new float[AudioLineVisualizer.NUM_RECTANGLES];

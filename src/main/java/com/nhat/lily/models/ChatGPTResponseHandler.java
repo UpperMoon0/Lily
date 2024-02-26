@@ -8,15 +8,13 @@ import java.util.List;
 import java.util.Random;
 
 import ch.qos.logback.classic.Logger;
-import com.nhat.lily.controllers.MainController;
-import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 
 public class ChatGPTResponseHandler implements Serializable {
     public static final String MEMORY_LOCATION = "D:\\Dev\\LilyBase\\memory\\lily_memory.bin";
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(ChatGPTResponseHandler.class);
+    private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(ChatGPTResponseHandler.class);
     private static final String URL = "https://api.openai.com/v1/chat/completions";
     private static final String API_KEY = System.getenv("OpenAIKey");
     private static final String MODEL = "gpt-3.5-turbo";
@@ -107,7 +105,7 @@ public class ChatGPTResponseHandler implements Serializable {
             // calls the method to extract the message.
             return extractMessageFromJSONResponse(response.toString());
         } catch (IOException e) {
-            logger.error("IOException: ", e);
+            LOGGER.error("IOException: ", e);
             return "Oops! There is something wrong, please wait and try again!";
         }
     }
@@ -128,7 +126,7 @@ public class ChatGPTResponseHandler implements Serializable {
             oos.close();
             fos.close();
         } catch (IOException ioe) {
-            logger.error("IOException: ", ioe);
+            LOGGER.error("IOException: ", ioe);
         }
     }
 
@@ -143,9 +141,9 @@ public class ChatGPTResponseHandler implements Serializable {
                 fis.close();
             }
         } catch (IOException ioe) {
-            logger.error("IOException: ", ioe);
+            LOGGER.error("IOException: ", ioe);
         } catch (ClassNotFoundException c) {
-            logger.error("Class not found", c);
+            LOGGER.error("Class not found", c);
         }
     }
 

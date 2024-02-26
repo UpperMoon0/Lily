@@ -61,12 +61,13 @@ public class MainController {
             CommandHandler commandHandler = CommandHandler.getInstance(this);
             String response = ChatGPTResponseHandler.getInstance(commandHandler).getResponse(input);
 
-            // Update UI on JavaFX Application Thread
             Platform.runLater(() -> {
                 botResponses.appendText("Lily: " + response + "\n");
+                userInput.setDisable(true);
             });
 
-            AzureTTSHandler.getInstance().speak(response, "ja-JP", audioCircleVisualizer);
+            AzureTTSHandler.getInstance().speak(response, "ja-JP", audioCircleVisualizer, () -> Platform.runLater(() -> userInput.setDisable(false)));
+
             commandHandler.processCommand(input);
         }).start();
 
