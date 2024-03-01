@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import com.nhat.lily.views.AudioLineVisualizer?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Label?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.nhat.lily.controllers.HubController">
+    <VBox fx:id="vbox" alignment="CENTER" spacing="20.0" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+        <VBox fx:id="vbox1" style="-fx-padding: 20;" VBox.vgrow="ALWAYS">
+            <StackPane>
+                <AudioLineVisualizer fx:id="audioCircleVisualizer"/>
+                <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true">
+                    <clip>
+                        <Circle fx:id="imageClip" />
+                    </clip>
+                    <Image url="@../images/lily.png"/>
+                </ImageView>
+            </StackPane>
+        </VBox>
+
+        <VBox fx:id="vbox2" style="-fx-padding: 20;" VBox.vgrow="ALWAYS">
+            <TextArea fx:id="botResponses" VBox.vgrow="ALWAYS" wrapText="true" editable="false"
+                      style="-fx-control-inner-background: #282828; -fx-text-fill: white;" />
+        </VBox>
+
+        <VBox fx:id="vbox3" style="-fx-padding: 20;" VBox.vgrow="ALWAYS">
+            <Label text="Enter prompt:"/>
+            <TextField fx:id="userInput" VBox.vgrow="ALWAYS" maxWidth="Infinity" onAction="#onUserInputAction"
+                       style="-fx-background-color: #282828; -fx-text-fill: white;" />
+        </VBox>
+    </VBox>
+</AnchorPane>

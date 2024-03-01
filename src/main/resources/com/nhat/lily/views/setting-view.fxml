@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.nhat.lily.controllers.SettingController">
+
+    <VBox spacing="10" style="-fx-padding: 10;">
+        <Label text="Lily base path" />
+        <TextField fx:id="lilyBasePathTextField" prefWidth="400" maxWidth="Infinity"
+                   style="-fx-background-color: #282828; -fx-text-fill: white;" />
+        <Label text="Your downloads path" />
+        <TextField fx:id="downloadsPathTextField" prefWidth="400" maxWidth="Infinity"
+                   style="-fx-background-color: #282828; -fx-text-fill: white;" />
+    </VBox>
+    <HBox spacing="10" style="-fx-padding: 10;" alignment="CENTER" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0">
+        <Label fx:id="statusLabel" />
+        <Button text="Save" onAction="#onSaveButtonAction"
+                style="-fx-background-color: #282828; -fx-text-fill: white; -fx-background-radius: 0;" />
+    </HBox>
+</AnchorPane>

@@ -9,7 +9,8 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.nhat.lily.controllers.MainController;
+import com.nhat.lily.controllers.HubController;
+import com.nhat.lily.controllers.SettingController;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -35,8 +36,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class CommandHandler {
-    private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(CommandHandler.class);
+public class CommandsHandler {
+    private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(CommandsHandler.class);
     public static final HashMap<String, String> COMMAND_NAMES = new HashMap<>() {{
         put("open browser", "open the browser");
         put("search for", "search for");
@@ -56,18 +57,17 @@ public class CommandHandler {
             {"exe", "msi"}
     };
     private static final Set<String> NO_STEMMING = Set.of("youtube", "memory");
-    private static final String DOWNLOAD_DIR = "D:\\Downloads";
     private static final String YOUTUBE_DATA_API_KEY = System.getenv("YouTubeDATAAPIKey");
-    private static CommandHandler INSTANCE = null;
+    private static CommandsHandler INSTANCE = null;
+    private final HubController hubController;
     private final Stage stage;
     private final PorterStemmer stemmer = new PorterStemmer();
     private final TokenizerModel tokenModel;
-    private final MainController mainController;
 
-    private CommandHandler(MainController mainController) {
+    private CommandsHandler(HubController hubController) {
         TokenizerModel tempTokenModel;
-        this.mainController = mainController;
-        this.stage = mainController.getStage();
+        this.hubController = hubController;
+        this.stage = hubController.getStage();
         try {
             tempTokenModel = new TokenizerModel(new FileInputStream("src\\main\\resources\\com\\nhat\\lily\\opennlp\\en-token.bin"));
         } catch (IOException e) {
@@ -77,9 +77,9 @@ public class CommandHandler {
         this.tokenModel = tempTokenModel;
     }
 
-    public static CommandHandler getInstance(MainController mainController) {
+    public static CommandsHandler getInstance(HubController hubController) {
         if (INSTANCE == null) {
-            INSTANCE = new CommandHandler(mainController);
+            INSTANCE = new CommandsHandler(hubController);
         }
         return INSTANCE;
     }
@@ -159,7 +159,7 @@ public class CommandHandler {
                 openBrowser();
                 break;
             case "clear memory":
-                ChatGPTResponseHandler.getInstance(this).clearMemory();
+                ChatGPTResponsesHandler.getInstance(this).clearMemory();
                 break;
             case "sort downloads":
                 sortDownloads();
@@ -219,14 +219,15 @@ public class CommandHandler {
     }
 
     private void sortDownloads() {
+        String downloadsDir = PathsHandler.getInstance().getDownloadsDir();
         try {
             // Create subdirectories if they don't exist
             for (String subDir : SUB_DIRS) {
-                Files.createDirectories(Paths.get(DOWNLOAD_DIR, subDir));
+                Files.createDirectories(Paths.get(downloadsDir, subDir));
             }
 
             // List all files in the download directory
-            try (Stream<Path> paths = Files.list(Paths.get(DOWNLOAD_DIR))) {
+            try (Stream<Path> paths = Files.list(Paths.get(downloadsDir))) {
                 paths.forEach(path -> {
                     String fileName = path.getFileName().toString();
                     String fileExtension = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(".") + 1) : "";
@@ -235,7 +236,7 @@ public class CommandHandler {
                     for (int i = 0; i < EXTENSIONS.length; i++) {
                         if (Arrays.asList(EXTENSIONS[i]).contains(fileExtension)) {
                             try {
-                                Files.move(path, Paths.get(DOWNLOAD_DIR, SUB_DIRS[i], fileName));
+                                Files.move(path, Paths.get(downloadsDir, SUB_DIRS[i], fileName));
                             } catch (IOException e) {
                                 LOGGER.error("An error occurred while sorting downloads: ", e);
                             }
@@ -257,7 +258,7 @@ public class CommandHandler {
                 formattedCmd += " something";
             commands.append("- ").append(formattedCmd).append("\n");
         }
-        mainController.getBotResponses().appendText(commands.toString());
+        hubController.getBotResponses().appendText(commands.toString());
     }
     public void searchYoutube(String query) {
         try {
