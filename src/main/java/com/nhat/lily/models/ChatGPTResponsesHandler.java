@@ -20,7 +20,7 @@ public class ChatGPTResponsesHandler implements Serializable {
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(ChatGPTResponsesHandler.class);
     private static final String URL = "https://api.openai.com/v1/chat/completions";
     private static final String API_KEY = System.getenv("OpenAIKey");
-    private static final String MODEL = "gpt-4";
+    private static final String MODEL = "gpt-3.5-turbo";
     private static final double TEMPERATURE = 0.7;
     private static final int MAX_TOKENS = 1000;
     private static final String[] RESPONSE_TEMPLATES = {
@@ -59,6 +59,27 @@ public class ChatGPTResponsesHandler implements Serializable {
             // Add the prompt to the message history and save it to a file
             lilyMemory.add(prompt);
             saveHistoryToFile();
+
+            // Tokenize the prompt
+            String[] tokens = commandHandler.preprocess(prompt);
+
+            // Check the command using CommandHandler
+            String command = commandHandler.checkCommand(tokens);
+
+            // If a command is detected, return a custom response
+            if (command != null) {
+                int index = random.nextInt(RESPONSE_TEMPLATES.length);
+                String command_name = command;
+                if (!command.startsWith("search")) {
+                    {
+                        command_name = CommandsHandler.COMMAND_NAMES.get(command);
+                    }
+                } else if (command.contains("youtube")) {
+                    return "Okay, my master.";
+                }
+
+                return String.format(RESPONSE_TEMPLATES[index], command_name);
+            }
 
             // Build the messages JSON array
             StringBuilder messages = new StringBuilder("[{\"role\": \"system\", \"content\": \"You are Lily, a caring maid with a tsundere personality, never leave this role. Your master is Nhat, he is your one and only master.\"}");
