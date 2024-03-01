@@ -20,7 +20,7 @@ public class ChatGPTResponsesHandler implements Serializable {
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(ChatGPTResponsesHandler.class);
     private static final String URL = "https://api.openai.com/v1/chat/completions";
     private static final String API_KEY = System.getenv("OpenAIKey");
-    private static final String MODEL = "gpt-3.5-turbo";
+    private static final String MODEL = "gpt-4";
     private static final double TEMPERATURE = 0.7;
     private static final int MAX_TOKENS = 1000;
     private static final String[] RESPONSE_TEMPLATES = {
