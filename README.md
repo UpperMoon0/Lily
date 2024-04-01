@@ -1,5 +1,6 @@
 # Lily
 Lily is the first generation of my personalized chatbot desktop application, developed using JavaFX. This project is now discontinued as I'm working on the next, more advanced generation.
+![Demo](images/demo.png)
 
 ## Features
 
@@ -14,5 +15,3 @@ The translated response is converted into speech audio using the Azure Text-to-S
 
 ### Command system
 The bot can also response to a command in the prompt and execute that action such as: sort downloads folder, browse youtube, show commands list, etc. 
-
-![Demo](images/demo.png)
