@@ -14,3 +14,5 @@ The translated response is converted into speech audio using the Azure Text-to-S
 
 ### Command system
 The bot can also response to a command in the prompt and execute that action such as: sort downloads folder, browse youtube, show commands list, etc. 
+
+![Demo](images/demo.png)
