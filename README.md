@@ -11,3 +11,6 @@ The bot's response is translated into a specific language (Japanese in this case
 
 ### Text to Speech
 The translated response is converted into speech audio using the Azure Text-to-Speech (TTS) API.
+
+### Command system
+The bot can also response to a command in the prompt and execute that action such as: sort downloads folder, browse youtube, show commands list, etc. 
